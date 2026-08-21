@@ -7,6 +7,7 @@ type CommonTableExpression interface {
 	SelectTable
 
 	AS(statement jet.SerializerHasProjections) CommonTableExpression
+	AS_MATERIALIZED(statement jet.SerializerStatement) CommonTableExpression
 	AS_NOT_MATERIALIZED(statement jet.SerializerStatement) CommonTableExpression
 	// ALIAS is used to create another alias of the CTE, if a CTE needs to appear multiple times in the main query.
 	ALIAS(alias string) SelectTable
@@ -43,6 +44,13 @@ func CTE(name string, columns ...jet.ColumnExpression) CommonTableExpression {
 
 // AS is used to define a CTE query
 func (c *commonTableExpression) AS(statement jet.SerializerHasProjections) CommonTableExpression {
+	c.CommonTableExpression.Statement = statement
+	return c
+}
+
+// AS_MATERIALIZED is used to define a materialized CTE query
+func (c *commonTableExpression) AS_MATERIALIZED(statement jet.SerializerStatement) CommonTableExpression {
+	c.CommonTableExpression.Materialized = true
 	c.CommonTableExpression.Statement = statement
 	return c
 }

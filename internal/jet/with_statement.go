@@ -58,6 +58,7 @@ type CommonTableExpression struct {
 	selectTableImpl
 
 	NotMaterialized bool
+	Materialized    bool
 	Columns         []ColumnExpression
 }
 
@@ -85,8 +86,11 @@ func (c CommonTableExpression) serialize(statement StatementType, out *SQLBuilde
 		}
 		out.WriteString("AS")
 
+		if c.Materialized {
+			out.WriteString(" MATERIALIZED")
+		}
 		if c.NotMaterialized {
-			out.WriteString("NOT MATERIALIZED")
+			out.WriteString(" NOT MATERIALIZED")
 		}
 
 		if c.Statement == nil {
