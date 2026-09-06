@@ -1244,9 +1244,13 @@ func newAllTypesTableImpl(schemaName, tableName, alias string) allTypesTable {
 
 // CockroachDB collapses the json type into jsonb, so its json-ish columns are
 // all generated as ColumnJson (postgres keeps json and jsonb distinct).
+// The generator also emits the constructor as JsonColumn(...) for those columns,
+// so both the field type and the constructor must be remapped.
 var allTypesTableContentCockroach = strings.ReplaceAll(
-	allTypesTableContent,
-	"postgres.ColumnJsonb", "postgres.ColumnJson")
+	strings.ReplaceAll(
+		allTypesTableContent,
+		"postgres.ColumnJsonb", "postgres.ColumnJson"),
+	"postgres.JsonbColumn(", "postgres.JsonColumn(")
 
 var sampleRangeTableContent = `
 //
