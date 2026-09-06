@@ -805,7 +805,11 @@ func TestGeneratedAllTypesSQLBuilderFiles(t *testing.T) {
 		testutils.AssertFileNamesEqual(t, tableDir, postgresSqlBuilders...)
 	}
 
-	testutils.AssertFileContent(t, tableDir+"/all_types.go", allTypesTableContent)
+	content := allTypesTableContent
+	if sourceIsCockroachDB() {
+		content = allTypesTableContentCockroach
+	}
+	testutils.AssertFileContent(t, tableDir+"/all_types.go", content)
 
 	if sourceIsPostgres() {
 		testutils.AssertFileContent(t, tableDir+"/sample_ranges.go", sampleRangeTableContent)
@@ -1237,6 +1241,12 @@ func newAllTypesTableImpl(schemaName, tableName, alias string) allTypesTable {
 	}
 }
 `
+
+// CockroachDB collapses the json type into jsonb, so its json-ish columns are
+// all generated as ColumnJson (postgres keeps json and jsonb distinct).
+var allTypesTableContentCockroach = strings.ReplaceAll(
+	allTypesTableContent,
+	"postgres.ColumnJsonb", "postgres.ColumnJson")
 
 var sampleRangeTableContent = `
 //
